@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Cell } from './components/Cell.jsx';
 import { Dice } from './components/Dice.jsx';
 import { Piece } from './components/Piece.jsx';
+import { PlayerBoard } from './components/PlayerBoard.jsx';
 
 export default function Game() {
   const canvasRef = useRef(null);
@@ -37,6 +38,13 @@ export default function Game() {
   ]);
 
   const dice = new Dice([1, 2, 'circle']);
+
+  // --- カード ---
+  const cards = [
+    { id: 1, name: "月を回転させる" },
+    { id: 2, name: "月の光を一つ消す" },
+    { id: 3, name: "月の光を一つ灯らせる" }
+  ];
 
   // --- 描画 ---
   const drawBoard = () => {
@@ -114,7 +122,7 @@ export default function Game() {
       if (draggingPiece) {
         const pos = getMousePos(e);
 
-        // --- 近いセルに吸着 ---
+        // 近いセルに吸着
         let closestCell = null;
         let minDist = Infinity;
         cells.forEach(c => {
@@ -130,7 +138,6 @@ export default function Game() {
         });
 
         if (closestCell) {
-          // Piece を更新
           setPieces(prev =>
             prev.map(p => (p === draggingPiece ? new Piece(p.type, p.id, closestCell.r, closestCell.s, p.color) : p))
           );
@@ -159,8 +166,10 @@ export default function Game() {
         ref={canvasRef}
         width={600}
         height={600}
-        style={{ background: '#000', margin: '20px auto', display: 'block' }}
+        style={{ background: '#000', display: 'block', margin: '0 auto' }}
       />
+
+      {/* サイコロとカードボタン */}
       <div style={{ marginTop: 10 }}>
         <button onClick={() => setDiceResult(dice.roll())}>サイコロを振る</button>
         <span style={{ marginLeft: 10 }}>{diceResult !== null ? `出目: ${diceResult}` : ''}</span>
@@ -175,9 +184,23 @@ export default function Game() {
           番を終了
         </button>
       </div>
-      <div style={{ marginTop: 10 }}>
-        現在の番: {pieces[turn].color}-{pieces[turn].id} ({pieces[turn].type})
+
+      {/* カード表示
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+        {cards.map(card => (
+          <Card
+            key={card.id}
+            name={card.name}
+            onClick={() => console.log(`${card.name}を使う`)}
+          />
+        ))}
+      </div> */}
+
+      {/* プレイヤーボードをcanvasの下に */}
+      <div style={{ marginTop: '20px', display: 'inline-block' }}>
+        <PlayerBoard players={pieces} currentTurn={turn} />
       </div>
     </div>
   );
+
 }
