@@ -14,8 +14,8 @@
     "vite": "^7.1.7"
   },
   "dependencies": {
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-game-ui": "github:kei-0021/react-game-ui"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-game-ui": "github:kei-0021/react-game-ui#issue-2"
   }
 }
