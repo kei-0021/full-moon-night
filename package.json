@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-game-ui": "github:kei-0021/react-game-ui"
   }
 }
