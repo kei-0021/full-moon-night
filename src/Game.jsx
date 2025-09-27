@@ -35,13 +35,32 @@ export default function Game() {
   }, []);
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <BoardCanvas pieces={pieces} setPieces={setPieces} />
+    <div
+      style={{
+        display: "flex",
+        position: "relative",
+        width: "100%",
+        height: "100vh",
+        padding: "20px", // ←全体に余白
+        boxSizing: "border-box"
+      }}
+    >
+      {/* 左にボード */}
+      <div style={{ flex: "1", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <BoardCanvas pieces={pieces} setPieces={setPieces} />
+      </div>
 
-      {/* スコアボードとサイコロ */}
-      <div style={{ marginTop: "20px", display: "inline-block" }}>
-        <Dice socket={socket} diceId="0" sides={3} />
-        <ScoreBoard socket={socket} players={players} currentPlayerId={currentPlayerId} />
+      {/* 右側に UI */}
+      <div style={{ width: "300px", position: "relative", padding: "10px" }}>
+        {/* スコアボード（右上） */}
+        <div style={{ position: "absolute", top: "80px", right: "80px" }}>
+          <ScoreBoard socket={socket} players={players} currentPlayerId={currentPlayerId} />
+        </div>
+
+        {/* サイコロ（右下） */}
+        <div style={{ position: "absolute", bottom: "80px", right: "80px" }}>
+          <Dice socket={socket} diceId="0" sides={3} />
+        </div>
       </div>
     </div>
   );
