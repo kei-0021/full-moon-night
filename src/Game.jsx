@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dice, ScoreBoard } from "react-game-ui";
 import { io } from "socket.io-client";
 import { BoardCanvas } from "./components/BoardCanvas.jsx";
 import { Piece } from "./components/Piece.jsx";
 
-const socket = io("http://localhost:3000");
+React;
+
+const socket = io("http://localhost:3001");
 
 socket.on("message", data => console.log("サーバーからのメッセージ:", data));
 socket.emit("joinGame", { playerId: "p1" });
@@ -25,7 +27,12 @@ export default function Game() {
   ]);
 
   useEffect(() => {
-    socket.on("players:update", setPlayers);
+    socket.on("connect", () => {
+      console.log("✅ connected:", socket.id);
+    });
+    socket.on("connect_error", (err) => {
+      console.error("❌ connect_error:", err);
+    });
     socket.on("game:turn", setCurrentPlayerId);
 
     return () => {
