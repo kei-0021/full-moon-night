@@ -33,9 +33,9 @@ export default function Game() {
 
   // ボード上の駒
   const [pieces, setPieces] = useState<Piece[]>([
-    new Piece("human1", "1", 2, 0, "blue"),
-    new Piece("human2", "1", 1, 0, "blue"),
-    new Piece("wolf", "1", 0, 3, "red"),
+    new Piece("human1", "h1", 2, 0, "blue"),
+    new Piece("human2", "h2", 1, 0, "blue"),
+    new Piece("wolf", "w", 0, 3, "red"),
   ]);
 
   // --- ソケットイベント登録 ---
