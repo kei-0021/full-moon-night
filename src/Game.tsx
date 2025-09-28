@@ -26,7 +26,7 @@ interface ClientToServerEvents {
 }
 
 // --- ソケット接続 ---
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io("http://localhost:3001");
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io("http://localhost:3000");
 
 socket.on("message", (data) => console.log("サーバーからのメッセージ:", data));
 socket.emit("joinGame", { playerId: "p1" });
@@ -37,7 +37,7 @@ export default function Game() {
   const [currentPlayerId, setCurrentPlayerId] = useState<Player["id"]>("p1");
   const [pieces, setPieces] = useState<Piece[]>([
     new Piece("human1", "h1", 2, 0, "blue"),
-    new Piece("human2", "h2", 1, 0, "blue"),
+    new Piece("human2", "h2", 2, 6, "blue"),
     new Piece("wolf", "w", 0, 3, "red"),
   ]);
 
