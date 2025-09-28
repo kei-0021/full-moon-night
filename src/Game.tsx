@@ -1,10 +1,17 @@
 // src/Game.tsx
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { Player } from "react-game-ui";
-import { Dice, ScoreBoard } from "react-game-ui";
+import { Deck, Dice, ScoreBoard } from "react-game-ui";
 import { io, Socket } from "socket.io-client";
 import { BoardCanvas } from "./components/BoardCanvas";
 import { Piece } from "./components/Piece";
+
+import '../node_modules/react-game-ui/dist/react-game-ui.css';
+import { cardEffects } from "./data/cardEffects";
+import itemDeck from "./data/itemCards.json";
+import lightDeck from "./data/lightCards.json";
+
+React;
 
 // --- 型定義 ---
 interface ServerToClientEvents {
@@ -15,6 +22,7 @@ interface ServerToClientEvents {
 
 interface ClientToServerEvents {
   joinGame: (data: { playerId: Player["id"] }) => void;
+  "deck:add": (deck: { deckId: string; name: string, cards: typeof lightDeck }) => void;
 }
 
 // --- ソケット接続 ---
@@ -25,20 +33,14 @@ socket.emit("joinGame", { playerId: "p1" });
 socket.on("disconnect", (reason) => console.log("サーバーとの接続が切れました", reason));
 
 export default function Game() {
-  // プレイヤーリスト
   const [players, setPlayers] = useState<Player[]>([]);
-
-  // 現在のプレイヤーID
   const [currentPlayerId, setCurrentPlayerId] = useState<Player["id"]>("p1");
-
-  // ボード上の駒
   const [pieces, setPieces] = useState<Piece[]>([
     new Piece("human1", "h1", 2, 0, "blue"),
     new Piece("human2", "h2", 1, 0, "blue"),
     new Piece("wolf", "w", 0, 3, "red"),
   ]);
 
-  // --- ソケットイベント登録 ---
   useEffect(() => {
     const handlePlayersUpdate = (updatedPlayers: Player[]) => {
       setPlayers(updatedPlayers);
@@ -50,13 +52,40 @@ export default function Game() {
       console.log("game:turn 受信, 現在のターンプレイヤー:", playerId);
     };
 
-    socket.on("connect", () => console.log("✅ connected:", socket.id));
+    // デッキ初期化
+    const allDecks = [
+      { deckId: "light", name: "光カード", cards: lightDeck },
+      { deckId: "item", name: "アイテムカード", cards: itemDeck }
+    ];
+
+    // カードに onPlay と location を追加
+    allDecks.forEach(deck => {
+      deck.cards = deck.cards.map(c => ({
+        ...c,
+        onPlay: cardEffects[c.name] || (() => {}),
+        location: "deck"
+      }));
+    });
+
+    // --- ソケット接続後にデッキを送信 ---
+    socket.on("connect", () => {
+      console.log("✅ connected:", socket.id);
+      console.log(allDecks)
+
+      allDecks.forEach(deck => {
+        socket.emit("deck:add", {
+          deckId: deck.deckId,
+          name: "light",
+          cards: deck.cards
+        });
+      });
+    });
+
     socket.on("connect_error", (err) => console.error("❌ connect_error:", err));
     socket.on("disconnect", (reason) => console.log("サーバーとの接続が切れました", reason));
     socket.on("players:update", handlePlayersUpdate);
     socket.on("game:turn", handleGameTurn);
 
-    // クリーンアップ
     return () => {
       socket.off("players:update", handlePlayersUpdate);
       socket.off("game:turn", handleGameTurn);
@@ -64,32 +93,31 @@ export default function Game() {
   }, []);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        position: "relative",
-        width: "100%",
-        height: "100vh",
-        padding: "20px",
-        boxSizing: "border-box",
-      }}
-    >
-      {/* 左にボード */}
+    <div style={{ display: "flex", position: "relative", width: "100%", height: "100vh", padding: "20px", boxSizing: "border-box" }}>
+      {/* 左側ボード */}
       <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
         <BoardCanvas pieces={pieces} setPieces={setPieces} />
       </div>
+      {/* 右側 UI */}
+      <div style={{
+        width: "300px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "10px",
+        height: "100%"
+      }}>
+        {/* 上部 ScoreBoard */}
+        <ScoreBoard socket={socket} players={players} currentPlayerId={currentPlayerId} />
 
-      {/* 右側に UI */}
-      <div style={{ width: "300px", position: "relative", padding: "10px" }}>
-        {/* スコアボード */}
-        <div style={{ position: "absolute", top: "80px", right: "80px" }}>
-          <ScoreBoard socket={socket} players={players} currentPlayerId={currentPlayerId} />
+        {/* 中央 Deck 横並び */}
+        <div style={{ display: "flex", justifyContent: "space-between", margin: "20px 0" }}>
+          <Deck socket={socket} deckId="light" name="光カード" playerId={currentPlayerId} />
+          <Deck socket={socket} deckId="item" name="アイテム" playerId={currentPlayerId} />
         </div>
 
-        {/* サイコロ */}
-        <div style={{ position: "absolute", bottom: "80px", right: "80px" }}>
-          <Dice socket={socket} diceId="0" sides={3} />
-        </div>
+        {/* 下部 Dice */}
+        <Dice socket={socket} diceId="0" sides={3} />
       </div>
     </div>
   );
