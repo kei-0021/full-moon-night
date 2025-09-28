@@ -1,20 +1,26 @@
+// src/components/BoardCanvas.tsx
 import React, { useEffect, useRef } from "react";
-import { Cell } from "./Cell.jsx";
-import { Piece } from "./Piece.jsx";
+import { Cell } from "./Cell";
+import { Piece } from "./Piece";
 
-export function BoardCanvas({ pieces, setPieces }) {
-  const canvasRef = useRef(null);
-  const draggingPieceRef = useRef(null);
+interface BoardCanvasProps {
+  pieces: Piece[];
+  setPieces: React.Dispatch<React.SetStateAction<Piece[]>>;
+}
+
+export function BoardCanvas({ pieces, setPieces }: BoardCanvasProps) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const draggingPieceRef = useRef<Piece | null>(null);
 
   // --- 盤面用 ---
   const center = { x: 300, y: 300 };
   const radii = [100, 200, 300];
   const sectors = 12;
-  const offset = 15 * Math.PI / 180;
+  const offset = (15 * Math.PI) / 180;
 
   // マス生成（固定でOK）
-  const cells = React.useMemo(() => {
-    const arr = [];
+  const cells: Cell[] = React.useMemo(() => {
+    const arr: Cell[] = [];
     for (let r = 0; r < radii.length; r++) {
       for (let s = 0; s < sectors; s++) {
         const angleStart = (s / sectors) * 2 * Math.PI + offset - Math.PI / sectors;
@@ -66,12 +72,12 @@ export function BoardCanvas({ pieces, setPieces }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const getMousePos = e => {
+    const getMousePos = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       return { x: e.clientX - rect.left, y: e.clientY - rect.top };
     };
 
-    const onMouseDown = e => {
+    const onMouseDown = (e: MouseEvent) => {
       const pos = getMousePos(e);
       for (const p of pieces) {
         if (p.isHit(pos.x, pos.y, center, radii, cells)) {
@@ -89,7 +95,7 @@ export function BoardCanvas({ pieces, setPieces }) {
       }
     };
 
-    const onMouseMove = e => {
+    const onMouseMove = (e: MouseEvent) => {
       const draggingPiece = draggingPieceRef.current;
       if (draggingPiece) {
         const pos = getMousePos(e);
@@ -98,13 +104,13 @@ export function BoardCanvas({ pieces, setPieces }) {
       }
     };
 
-    const onMouseUp = e => {
+    const onMouseUp = (e: MouseEvent) => {
       const draggingPiece = draggingPieceRef.current;
       if (draggingPiece) {
         const pos = getMousePos(e);
 
         // 近いセルに吸着
-        let closestCell = null;
+        let closestCell: Cell | null = null;
         let minDist = Infinity;
         cells.forEach(c => {
           const cx = center.x + Math.cos((c.angleStart + c.angleEnd) / 2) * (radii[c.r] - 50);

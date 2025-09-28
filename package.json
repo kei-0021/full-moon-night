@@ -11,6 +11,8 @@
     "dev:multi": "concurrently \"npm run server\" \"vite --host\""
   },
   "devDependencies": {
+    "@types/react": "^19.1.14",
+    "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.3",
     "concurrently": "^9.2.1",
     "typescript": "~5.8.3",

@@ -1,6 +1,16 @@
-// Piece.jsx
+// src/components/Piece.tsx
 export class Piece {
-  constructor(type, id, r, s, color) {
+  type: string;
+  id: string;
+  r: number;
+  s: number;
+  color: string;
+  tempX: number | null;
+  tempY: number | null;
+  offsetX?: number;
+  offsetY?: number;
+
+  constructor(type: string, id: string, r: number, s: number, color: string) {
     this.type = type;
     this.id = id;
     this.r = r;
@@ -10,8 +20,10 @@ export class Piece {
     this.tempY = null;
   }
 
-  draw(ctx, center, cells, radii) {
+  draw(ctx: CanvasRenderingContext2D, center: { x: number; y: number }, cells: any[], radii: number[]) {
     const cell = cells.find(c => c.r === this.r && c.s === this.s);
+    if (!cell) return;
+
     const x = this.tempX ?? (center.x + Math.cos((cell.angleStart + cell.angleEnd)/2) * (radii[this.r]-50));
     const y = this.tempY ?? (center.y + Math.sin((cell.angleStart + cell.angleEnd)/2) * (radii[this.r]-50));
 
@@ -29,22 +41,25 @@ export class Piece {
     ctx.fillText(`${this.id}`, x, y);
   }
 
-  isHit(mx, my, center, radii, cells) {
+  isHit(mx: number, my: number, center: { x: number; y: number }, radii: number[], cells: any[]): boolean {
     const cell = cells.find(c => c.r === this.r && c.s === this.s);
+    if (!cell) return false;
+
     const x = center.x + Math.cos((cell.angleStart + cell.angleEnd)/2) * (radii[this.r]-50);
     const y = center.y + Math.sin((cell.angleStart + cell.angleEnd)/2) * (radii[this.r]-50);
     return Math.hypot(mx - x, my - y) < 15;
   }
 
-  startDrag(mx, my, center, radii, cells) {
+  startDrag(mx: number, my: number, center: { x: number; y: number }, radii: number[], cells: any[]) {
     const cell = cells.find(c => c.r === this.r && c.s === this.s);
+    if (!cell) return;
     this.offsetX = mx - (center.x + Math.cos((cell.angleStart + cell.angleEnd)/2) * (radii[this.r]-50));
     this.offsetY = my - (center.y + Math.sin((cell.angleStart + cell.angleEnd)/2) * (radii[this.r]-50));
   }
 
-  drag(mx, my) {
-    this.tempX = mx - this.offsetX;
-    this.tempY = my - this.offsetY;
+  drag(mx: number, my: number) {
+    this.tempX = mx - (this.offsetX ?? 0);
+    this.tempY = my - (this.offsetY ?? 0);
   }
 
   endDrag() {
