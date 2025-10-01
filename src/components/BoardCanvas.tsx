@@ -124,15 +124,21 @@ export function BoardCanvas({ pieces, setPieces }: BoardCanvasProps) {
           }
         });
 
-        if (closestCell) {
-          setPieces(prev =>
-            prev.map(p =>
-              p === draggingPiece
-                ? new Piece(p.type, p.id, closestCell.r, closestCell.s, p.color)
-                : p
-            )
-          );
+        // nullチェックを先に行う
+        if (!closestCell) {
+          draggingPiece.endDrag();
+          draggingPieceRef.current = null;
+          drawBoard();
+          return;
         }
+
+        setPieces(prev =>
+          prev.map(p =>
+            p === draggingPiece
+              ? new Piece(p.type, p.id, closestCell!.r, closestCell!.s, p.color)
+              : p
+          )
+        );
 
         draggingPiece.endDrag();
         draggingPieceRef.current = null;
