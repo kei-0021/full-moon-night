@@ -7,7 +7,7 @@
     "dev": "vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "start": "node server.js",
+    "start": "node node_modules/react-game-ui/src/server.js",
     "server": "node node_modules/react-game-ui/src/server.js",
     "dev:multi": "concurrently \"npm run server\" \"vite --host\""
   },
