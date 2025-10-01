@@ -30,7 +30,8 @@ interface ClientToServerEvents {
 }
 
 // --- ソケット接続 ---
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io("http://localhost:3000");
+const socketUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(socketUrl);
 
 socket.on("message", (data) => console.log("サーバーからのメッセージ:", data));
 socket.emit("joinGame", { playerId: "p1" });
