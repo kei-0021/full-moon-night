@@ -1,6 +1,6 @@
 // src/Game.tsx
 import React, { useEffect, useState } from "react";
-import type { Player } from "react-game-ui";
+import type { Card, Player } from "react-game-ui";
 import { Deck, Dice, ScoreBoard } from "react-game-ui";
 import { io, Socket } from "socket.io-client";
 import { BoardCanvas } from "./components/BoardCanvas";
@@ -8,12 +8,16 @@ import { Piece } from "./components/Piece";
 
 import '../node_modules/react-game-ui/dist/react-game-ui.css';
 import { cardEffects } from "./data/cardEffects";
-import itemDeck from "./data/itemCards.json";
-import lightDeck from "./data/lightCards.json";
+
+import itemDeckJson from "./data/itemCards.json";
+import lightDeckJson from "./data/lightCards.json";
 
 React;
 
 // --- 型定義 ---
+const itemDeck: Card[] = itemDeckJson as Card[];
+const lightDeck: Card[] = lightDeckJson as Card[];
+
 interface ServerToClientEvents {
   message: (data: string) => void;
   "game:turn": (playerId: Player["id"]) => void;
