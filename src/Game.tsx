@@ -45,7 +45,7 @@ export default function Game() {
     new Piece("wolf", "w", 0, 3, "red"),
   ]);
 
-  const [scores, setScores] = useState<Record<Player["id"], number>>({});
+  const [, setScores] = useState<Record<Player["id"], number>>({});
 
   // スコア加算関数
   const addScore = (playerId: Player["id"], points: number) => {
