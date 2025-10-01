@@ -45,6 +45,16 @@ export default function Game() {
     new Piece("wolf", "w", 0, 3, "red"),
   ]);
 
+  const [scores, setScores] = useState<Record<Player["id"], number>>({});
+
+  // スコア加算関数
+  const addScore = (playerId: Player["id"], points: number) => {
+    setScores(prev => ({
+      ...prev,
+      [playerId]: (prev[playerId] || 0) + points
+    }));
+  };
+
   useEffect(() => {
     const handlePlayersUpdate = (updatedPlayers: Player[]) => {
       setPlayers(updatedPlayers);
@@ -62,11 +72,22 @@ export default function Game() {
       { deckId: "item", name: "アイテムカード", cards: itemDeck }
     ];
 
-    // カードに onPlay と location を追加
+    // カードに onPlay と location を追加（無引数ラップ）
     allDecks.forEach(deck => {
       deck.cards = deck.cards.map(c => ({
         ...c,
-        onPlay: cardEffects[c.name] || (() => {}),
+        onPlay: () => {
+          // cardEffects から元の処理を取得
+          const effect = cardEffects[c.name];
+          if (effect) {
+            const params = {
+              card: c,
+              currentPlayerId,
+              addScore
+            };
+            effect(params); // 必須プロパティを渡す
+          }
+        },
         location: "deck"
       }));
     });
@@ -74,7 +95,7 @@ export default function Game() {
     // --- ソケット接続後にデッキを送信 ---
     socket.on("connect", () => {
       console.log("✅ connected:", socket.id);
-      console.log(allDecks)
+      console.log(allDecks);
 
       allDecks.forEach(deck => {
         socket.emit("deck:add", {
@@ -94,7 +115,7 @@ export default function Game() {
       socket.off("players:update", handlePlayersUpdate);
       socket.off("game:turn", handleGameTurn);
     };
-  }, []);
+  }, [currentPlayerId]);
 
   return (
     <div style={{ display: "flex", position: "relative", width: "100%", height: "100vh", padding: "20px", boxSizing: "border-box" }}>
