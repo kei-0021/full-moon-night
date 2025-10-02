@@ -12,15 +12,18 @@
     "dev:multi": "concurrently \"npm run server\" \"vite --host\""
   },
   "devDependencies": {
-    "@types/react": "^19.1.14",
-    "@types/react-dom": "^19.1.9",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^5.0.3",
     "concurrently": "^9.2.1",
     "typescript": "~5.8.3",
     "vite": "^7.1.7"
   },
   "dependencies": {
-    "react-game-ui": "github:kei-0021/react-game-ui#issue-2",
+    "express": "^5.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-game-ui": "github:kei-0021/react-game-ui#issue-6",
     "socket.io": "^4.8.1"
   }
 }
