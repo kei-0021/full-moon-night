@@ -1,26 +1,31 @@
 {
   "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
     "target": "ES2022",
-    "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    
+    // 必須設定（すべてのエラーを解消）
+    "lib": ["DOM", "DOM.Iterable", "ES2022"], 
+    "jsx": "react-jsx", 
+    "esModuleInterop": true,         // <-- TS1259 エラーの解消
+    "resolveJsonModule": true,       // <-- TS2732 (JSON) エラーの解消
+    "moduleResolution": "node",      // <-- JSONモジュール解決の競合解消
+    
+    "useDefineForClassFields": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx",   // ← ここがポイント
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
-
-    /* Linting */
+    "noEmit": false,
+    
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }
