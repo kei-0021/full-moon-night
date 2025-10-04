@@ -1,4 +1,6 @@
 // src/Game.tsx
+import "react-game-ui/dist/react-game-ui.css";
+
 import React, { useEffect, useState } from "react";
 import type { Card, Player } from "react-game-ui";
 import { Deck, Dice, ScoreBoard } from "react-game-ui";
@@ -6,9 +8,7 @@ import { io, Socket } from "socket.io-client";
 import { BoardCanvas } from "./components/BoardCanvas";
 import { Piece } from "./components/Piece";
 
-import '../node_modules/react-game-ui/dist/react-game-ui.css';
 import { cardEffects } from "./data/cardEffects";
-
 import itemDeckJson from "./data/itemCards.json";
 import lightDeckJson from "./data/lightCards.json";
 
@@ -22,6 +22,7 @@ interface ServerToClientEvents {
   message: (data: string) => void;
   "game:turn": (playerId: Player["id"]) => void;
   "players:update": (players: Player[]) => void;
+  "player:assign-id": (id: Player["id"]) => void;
 }
 
 interface ClientToServerEvents {
@@ -34,12 +35,12 @@ const socketUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(socketUrl);
 
 socket.on("message", (data) => console.log("サーバーからのメッセージ:", data));
-socket.emit("joinGame", { playerId: "p1" });
 socket.on("disconnect", (reason) => console.log("サーバーとの接続が切れました", reason));
 
 export default function Game() {
+  const [myPlayerId, setMyPlayerId] = useState<Player["id"]>("");
   const [players, setPlayers] = useState<Player[]>([]);
-  const [currentPlayerId, setCurrentPlayerId] = useState<Player["id"]>("p1");
+  const [currentPlayerId, setCurrentPlayerId] = useState<Player["id"]>("");
   const [pieces, setPieces] = useState<Piece[]>([
     new Piece("human1", "h1", 2, 0, "blue"),
     new Piece("human2", "h2", 2, 6, "blue"),
@@ -57,6 +58,12 @@ export default function Game() {
   };
 
   useEffect(() => {
+    // サーバーから自分のIDを割り当てられる
+    socket.on("player:assign-id", (id: Player["id"]) => {
+      console.log("✅ 自分のIDを受信:", id);
+      setMyPlayerId(id);
+    });
+
     const handlePlayersUpdate = (updatedPlayers: Player[]) => {
       setPlayers(updatedPlayers);
       console.log("players:update 受信:", updatedPlayers);
@@ -113,6 +120,7 @@ export default function Game() {
     socket.on("game:turn", handleGameTurn);
 
     return () => {
+      socket.off("player:assign-id");
       socket.off("players:update", handlePlayersUpdate);
       socket.off("game:turn", handleGameTurn);
     };
@@ -133,15 +141,17 @@ export default function Game() {
         padding: "10px",
         height: "100%"
       }}>
-        {/* 上部 ScoreBoard */}
-        <ScoreBoard socket={socket} players={players} currentPlayerId={currentPlayerId} />
+        {players.length > 0 && currentPlayerId && (
+          <>
+            {/* 上部 ScoreBoard */}
+            <ScoreBoard socket={socket} players={players} currentPlayerId={currentPlayerId} myPlayerId={myPlayerId} />
 
-        {/* 中央 Deck 横並び */}
-        <div style={{ display: "flex", justifyContent: "space-between", margin: "20px 0" }}>
-          <Deck socket={socket} deckId="light" name="光カード" playerId={currentPlayerId} />
-          <Deck socket={socket} deckId="item" name="アイテム" playerId={currentPlayerId} />
-        </div>
-
+            <div style={{ display: "flex", justifyContent: "space-between", margin: "20px 0" }}>
+              <Deck socket={socket} deckId="light" name="光カード" playerId={currentPlayerId} />
+              <Deck socket={socket} deckId="item" name="アイテム" playerId={currentPlayerId} />
+            </div>
+          </>
+        )}
         {/* 下部 Dice */}
         <Dice socket={socket} diceId="0" sides={3} />
       </div>
