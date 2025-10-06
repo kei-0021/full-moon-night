@@ -27,7 +27,7 @@ interface ServerToClientEvents {
 
 interface ClientToServerEvents {
   joinGame: (data: { playerId: Player["id"] }) => void;
-  "deck:add": (deck: { deckId: string; name: string, cards: typeof lightDeck }) => void;
+  "deck:add": (deck: { deckId: string; name: string; cards: typeof lightDeck }) => void;
 }
 
 // --- ソケット接続 ---
@@ -41,6 +41,10 @@ export default function Game() {
   const [myPlayerId, setMyPlayerId] = useState<Player["id"]>("");
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPlayerId, setCurrentPlayerId] = useState<Player["id"]>("");
+
+  // 🔹 ここを追加：盤面のタブ状態
+  const [activeBoard, setActiveBoard] = useState<"forest" | "moon" | "lake">("forest");
+
   const [pieces, setPieces] = useState<Piece[]>([
     new Piece("human1", "h1", 2, 0, "blue"),
     new Piece("human2", "h2", 2, 6, "blue"),
@@ -51,9 +55,9 @@ export default function Game() {
 
   // スコア加算関数
   const addScore = (playerId: Player["id"], points: number) => {
-    setScores(prev => ({
+    setScores((prev) => ({
       ...prev,
-      [playerId]: (prev[playerId] || 0) + points
+      [playerId]: (prev[playerId] || 0) + points,
     }));
   };
 
@@ -77,26 +81,25 @@ export default function Game() {
     // デッキ初期化
     const allDecks = [
       { deckId: "light", name: "光カード", cards: lightDeck },
-      { deckId: "item", name: "アイテムカード", cards: itemDeck }
+      { deckId: "item", name: "アイテムカード", cards: itemDeck },
     ];
 
     // カードに onPlay と location を追加（無引数ラップ）
-    allDecks.forEach(deck => {
-      deck.cards = deck.cards.map(c => ({
+    allDecks.forEach((deck) => {
+      deck.cards = deck.cards.map((c) => ({
         ...c,
         onPlay: () => {
-          // cardEffects から元の処理を取得
           const effect = cardEffects[c.name];
           if (effect) {
             const params = {
               card: c,
               currentPlayerId,
-              addScore
+              addScore,
             };
-            effect(params); // 必須プロパティを渡す
+            effect(params);
           }
         },
-        location: "deck"
+        location: "deck",
       }));
     });
 
@@ -105,11 +108,11 @@ export default function Game() {
       console.log("✅ connected:", socket.id);
       console.log(allDecks);
 
-      allDecks.forEach(deck => {
+      allDecks.forEach((deck) => {
         socket.emit("deck:add", {
           deckId: deck.deckId,
-          name: "light",
-          cards: deck.cards
+          name: deck.name,
+          cards: deck.cards,
         });
       });
     });
@@ -126,25 +129,107 @@ export default function Game() {
     };
   }, [currentPlayerId]);
 
+  // --- 盤面切り替えUI ---
+  const renderBoard = () => {
+    switch (activeBoard) {
+      case "forest":
+        return <BoardCanvas theme="forest" pieces={pieces} setPieces={setPieces} />;
+      case "moon":
+        return <BoardCanvas theme="moon" pieces={pieces} setPieces={setPieces} />;
+      case "lake":
+        return <BoardCanvas theme="lake" pieces={pieces} setPieces={setPieces} />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div style={{ display: "flex", position: "relative", width: "100%", height: "100vh", padding: "20px", boxSizing: "border-box" }}>
-      {/* 左側ボード */}
-      <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <BoardCanvas pieces={pieces} setPieces={setPieces} />
-      </div>
-      {/* 右側 UI */}
-      <div style={{
-        width: "300px",
+    <div
+      style={{
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "10px",
-        height: "100%"
-      }}>
+        position: "relative",
+        width: "100%",
+        height: "100vh",
+        padding: "20px",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* --- 左側: 盤面とタブ --- */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {/* タブボタン */}
+        <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+          <button
+            onClick={() => setActiveBoard("forest")}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: activeBoard === "forest" ? "#68b36b" : "#ddd",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            🪵 森
+          </button>
+          <button
+            onClick={() => setActiveBoard("moon")}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: activeBoard === "moon" ? "#b1a7f5" : "#ddd",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            🌕 月光
+          </button>
+          <button
+            onClick={() => setActiveBoard("lake")}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: activeBoard === "lake" ? "#7fcfff" : "#ddd",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            🌊 湖
+          </button>
+        </div>
+
+        {/* 現在の盤面 */}
+        <div
+          style={{
+            flex: 1,
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {renderBoard()}
+        </div>
+      </div>
+
+      {/* --- 右側: UIエリア --- */}
+      <div
+        style={{
+          width: "300px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: "10px",
+          height: "100%",
+        }}
+      >
         {players.length > 0 && currentPlayerId && (
           <>
             {/* 上部 ScoreBoard */}
-            <ScoreBoard socket={socket} players={players} currentPlayerId={currentPlayerId} myPlayerId={myPlayerId} />
+            <ScoreBoard
+              socket={socket}
+              players={players}
+              currentPlayerId={currentPlayerId}
+              myPlayerId={myPlayerId}
+            />
 
             <div style={{ display: "flex", justifyContent: "space-between", margin: "20px 0" }}>
               <Deck socket={socket} deckId="light" name="光カード" playerId={currentPlayerId} />

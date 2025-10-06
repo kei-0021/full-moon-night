@@ -6,9 +6,10 @@ import { Piece } from "./Piece";
 interface BoardCanvasProps {
   pieces: Piece[];
   setPieces: React.Dispatch<React.SetStateAction<Piece[]>>;
+  theme?: "forest" | "moon" | "lake"; // ← テーマ追加
 }
 
-export function BoardCanvas({ pieces, setPieces }: BoardCanvasProps) {
+export function BoardCanvas({ pieces, setPieces, theme = "forest" }: BoardCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const draggingPieceRef = useRef<Piece | null>(null);
 
@@ -17,6 +18,40 @@ export function BoardCanvas({ pieces, setPieces }: BoardCanvasProps) {
   const radii = [100, 200, 300];
   const sectors = 12;
   const offset = (15 * Math.PI) / 180;
+
+  // --- テーマ別スタイル ---
+  const boardStyle = React.useMemo(() => {
+    switch (theme) {
+      case "forest":
+        return {
+          background: "#0b3d0b",
+          lightColor: "#3fa34d",
+          shadowColor: "#1e4620",
+          lineColor: "#a4d68e"
+        };
+      case "moon":
+        return {
+          background: "#1a183f",
+          lightColor: "#d1d1f2",
+          shadowColor: "#4c4b6f",
+          lineColor: "#f8f6e7"
+        };
+      case "lake":
+        return {
+          background: "#082b4c",
+          lightColor: "#4fc3f7",
+          shadowColor: "#1565c0",
+          lineColor: "#bbdefb"
+        };
+      default:
+        return {
+          background: "#000",
+          lightColor: "#999",
+          shadowColor: "#555",
+          lineColor: "#fff"
+        };
+    }
+  }, [theme]);
 
   // マス生成（固定でOK）
   const cells: Cell[] = React.useMemo(() => {
@@ -40,12 +75,22 @@ export function BoardCanvas({ pieces, setPieces }: BoardCanvasProps) {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // マス描画
-    cells.forEach(cell => cell.draw(ctx, center));
+    // 背景
+    ctx.fillStyle = boardStyle.background;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // マス描画（テーマ色を渡す）
+    cells.forEach(cell => {
+      const color = cell.state === "light" ? boardStyle.lightColor : boardStyle.shadowColor;
+      cell.draw(ctx, center, color);
+    });
+
     // 駒描画
     pieces.forEach(p => p.draw(ctx, center, cells, radii));
 
     // セクター線
+    ctx.strokeStyle = boardStyle.lineColor;
+    ctx.lineWidth = 1.2;
     for (let s = 0; s < sectors; s++) {
       const angle = (s / sectors) * 2 * Math.PI;
       ctx.beginPath();
@@ -65,7 +110,7 @@ export function BoardCanvas({ pieces, setPieces }: BoardCanvasProps) {
     });
   };
 
-  useEffect(() => drawBoard(), [pieces, cells]);
+  useEffect(() => drawBoard(), [pieces, cells, theme]);
 
   // --- ドラッグ処理 ---
   useEffect(() => {
@@ -155,14 +200,20 @@ export function BoardCanvas({ pieces, setPieces }: BoardCanvasProps) {
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseup", onMouseUp);
     };
-  }, [pieces, cells]);
+  }, [pieces, cells, theme]);
 
   return (
     <canvas
       ref={canvasRef}
       width={600}
       height={600}
-      style={{ background: "#000", display: "block", margin: "0 auto" }}
+      style={{
+        background: boardStyle.background,
+        display: "block",
+        margin: "0 auto",
+        borderRadius: "10px",
+        boxShadow: "0 0 12px rgba(0,0,0,0.4)"
+      }}
     />
   );
 }
