@@ -3,13 +3,13 @@ import React, { useEffect, useRef } from "react";
 import { Cell } from "./Cell";
 import { Piece } from "./Piece";
 
-interface BoardCanvasProps {
+interface RadialBoardCanvasProps {
   pieces: Piece[];
   setPieces: React.Dispatch<React.SetStateAction<Piece[]>>;
   theme?: "forest" | "moon" | "lake"; // ← テーマ追加
 }
 
-export function BoardCanvas({ pieces, setPieces, theme = "forest" }: BoardCanvasProps) {
+export function RadialBoardCanvas({ pieces, setPieces, theme = "forest" }: RadialBoardCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const draggingPieceRef = useRef<Piece | null>(null);
 
