@@ -28,7 +28,7 @@
   "dependencies": {
     "react": "18.3.1", 
     "react-dom": "18.3.1", 
-    "react-game-ui": "github:kei-0021/react-game-ui#issue-8",
+    "react-game-ui": "github:kei-0021/react-game-ui#issue-10",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   },

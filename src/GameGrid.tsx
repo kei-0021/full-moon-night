@@ -3,7 +3,7 @@ import "react-game-ui/dist/react-game-ui.css";
 
 import React, { useEffect, useState } from "react";
 import type { Card, Player } from "react-game-ui";
-import { Deck, Dice, ScoreBoard } from "react-game-ui";
+import { Deck, Dice, PlayField, ScoreBoard } from "react-game-ui";
 import { io, Socket } from "socket.io-client";
 import { GridBoardCanvas } from "./components/GridBoardCanvas"; // 変更
 import { Piece } from "./components/Piece";
@@ -149,12 +149,14 @@ export default function Game() {
       {/* UIエリア */}
       <div style={{ width: "300px", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "10px" }}>
         {players.length > 0 && currentPlayerId && (
-          <>
+          <> {/* 👈 currentPlayerId が存在するブロック */}
             <ScoreBoard socket={socket} players={players} currentPlayerId={currentPlayerId} myPlayerId={myPlayerId} />
             <div style={{ display: "flex", justifyContent: "space-between", margin: "20px 0" }}>
-              <Deck socket={socket} deckId="light" name="光カード" playerId={currentPlayerId} />
               <Deck socket={socket} deckId="item" name="アイテム" playerId={currentPlayerId} />
+              <Deck socket={socket} deckId="light" name="光カード" playerId={currentPlayerId} />
             </div>
+            <PlayField socket={socket} deckId="item"/> 
+            <PlayField socket={socket} deckId="light"/>
           </>
         )}
         <Dice socket={socket} diceId="0" sides={3} />
