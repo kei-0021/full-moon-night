@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "target": "ES2022",
     "module": "ESNext",
     
@@ -26,6 +26,6 @@
     "noUncheckedSideEffectImports": true
   },
   
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src", "public/data/cardEffects.js"],
+  "exclude": ["node_modules", "dist", "public/data/cardEffects.js"]
 }

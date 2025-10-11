@@ -1,9 +1,4 @@
-type CardEffectParams = {
-  playerId?: string;
-  addScore: (playerId: string, points: number) => void;
-};
-
-export const cardEffects: Record<string, (params: CardEffectParams) => void> = {
+export const cardEffects = {
   "ファイアボール": ({ playerId, addScore }) => {
     console.log(`🔥 ファイアボール発動! by ${playerId}`);
     if (playerId) addScore(playerId, 3);

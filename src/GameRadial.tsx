@@ -8,9 +8,9 @@ import { io, Socket } from "socket.io-client";
 import { Piece } from "./components/Piece";
 import { RadialBoardCanvas } from "./components/RadialBoardCanvas";
 
-import { cardEffects } from "./data/cardEffects";
-import itemDeckJson from "./data/itemCards.json";
-import lightDeckJson from "./data/lightCards.json";
+import { cardEffects } from "../public/data/cardEffects";
+import itemDeckJson from "../public/data/itemCards.json";
+import lightDeckJson from "../public/data/lightCards.json";
 
 React;
 

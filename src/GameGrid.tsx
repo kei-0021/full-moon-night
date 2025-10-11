@@ -8,9 +8,9 @@ import { io, Socket } from "socket.io-client";
 import { GridBoardCanvas } from "./components/GridBoardCanvas"; // 変更
 import { Piece } from "./components/Piece";
 
-import { cardEffects } from "./data/cardEffects";
-import itemDeckJson from "./data/itemCards.json";
-import lightDeckJson from "./data/lightCards.json";
+import { cardEffects } from "../public/data/cardEffects";
+import itemDeckJson from "../public/data/itemCards.json";
+import lightDeckJson from "../public/data/lightCards.json";
 
 const itemDeck: Card[] = itemDeckJson as Card[];
 const lightDeck: Card[] = lightDeckJson as Card[];

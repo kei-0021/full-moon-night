@@ -1,66 +1,111 @@
-// src/server.js
-import fs from 'fs';
+#!/usr/bin/env node
+// expressとsocket.ioはrequire()でインポート (インポートエラー対策)
+import express from "express";
+import fs from "fs";
 import { createServer } from "http";
-import path, { dirname } from "path";
+import path from "path";
+import { Server as SocketIOServer } from "socket.io";
+import { fileURLToPath } from "url";
+
+// 💥 修正: server-logic.js をライブラリのパスからインポート
 import { initGameServer } from "react-game-ui/server-logic";
-import { Server } from "socket.io";
-import { fileURLToPath } from 'url';
-// import mime from 'mime-types'; // 💥 外部依存を削除！
+import { cardEffects } from "../public/data/cardEffects.js";
 
-// --- パス解決 ---
+// ------------------------------------------------------------------
+// --- I. パス解決とJSON読み込みヘルパー ---
+// ------------------------------------------------------------------
+
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const APP_ROOT = path.join(__dirname, '..'); 
-const appDist = path.join(APP_ROOT, "dist"); 
+const __dirname = path.dirname(__filename);
 
-// --- MIMEタイプ代替マップ ---
-// 💥 必須: 外部パッケージを使わない代替策
-const mimeTypeMap = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'text/javascript',
-    '.json': 'application/json',
-    '.svg': 'image/svg+xml',
-    '.ico': 'image/x-icon',
-    '.woff2': 'font/woff2',
-    // 他に必要な静的ファイルタイプがあれば追加
-};
+const DIST_PATH = path.resolve("dist");
+// Render環境変数PORTを優先し、ローカル環境では3000をフォールバックとして使用
+const PORT = process.env.PORT || 3000; 
 
-// --- サーバー初期化 ---
-const app = (req, res) => {
-    const urlPath = req.url.split('?')[0];
-    let filePath = path.join(appDist, urlPath);
+// JSON 読み込みヘルパー
+function loadJson(filename) {
+  const fullPath = path.join(__dirname, "..", "public", filename); 
+  if (!fs.existsSync(fullPath)) {
+    console.error(`❌ JSON ファイルが見つかりません: ${fullPath}`);
+    process.exit(1); 
+  }
+  try {
+    return JSON.parse(fs.readFileSync(fullPath, "utf-8"));
+  } catch (err) {
+    console.error(`❌ JSON のパースに失敗: ${fullPath}`);
+    console.error(err);
+    process.exit(1);
+  }
+}
 
-    // 1. ファイルが存在するかチェック
-    if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
-        const ext = path.extname(filePath).toLowerCase();
-        // 💥 修正: 自前のマップからMIMEタイプを取得
-        const contentType = mimeTypeMap[ext] || 'application/octet-stream';
+// ------------------------------------------------------------------
+// --- II. データ読み込み ---
+// ------------------------------------------------------------------
 
-        res.writeHead(200, { 'Content-Type': contentType });
-        fs.createReadStream(filePath).pipe(res);
-    } else {
-        // 2. ファイルが見つからない場合、index.htmlを返す（フォールバック）
-        const indexPath = path.join(appDist, 'index.html');
-        if (fs.existsSync(indexPath)) {
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            fs.createReadStream(indexPath).pipe(res);
-        } else {
-            res.writeHead(404, { 'Content-Type': 'text/plain' });
-            res.end('404 Not Found: Index file missing.');
-        }
-    }
-};
+const itemDeckJson = loadJson("data/itemCards.json"); 
+const lightDeckJson = loadJson("data/lightCards.json");
 
-// --- Socket.IO/ゲームロジック ---
+const initialDecks = [
+  { deckId: "item", name: "アイテムカード", cards: itemDeckJson, backColor: "#c25656ff" },
+  { deckId: "light", name: "光カード", cards: lightDeckJson, backColor: "#7e6d36ff" },
+];
+
+// ------------------------------------------------------------------
+// --- III. ExpressとSocket.IOの設定 ---
+// ------------------------------------------------------------------
+
+const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "*" } });
+const corsOrigins = ["http://localhost:5173", "http://localhost:3000"];
 
-// ライブラリの Socket.IO ロジックを初期化
-initGameServer(io);
+const io = new SocketIOServer(httpServer, {
+  cors: { origin: corsOrigins, methods: ["GET", "POST"] },
+});
+
+// 1. 静的ファイル配信
+// Renderのログに合わせて、静的ファイルのパスは '/opt/render/project/src/dist' になることを確認
+const STATIC_DIST_PATH = path.resolve(__dirname, '..', 'dist'); // 正しい絶対パスを取得
+if (fs.existsSync(STATIC_DIST_PATH)) {
+    app.use(express.static(STATIC_DIST_PATH)); 
+    console.log(`[Express] Serving static files from: ${STATIC_DIST_PATH}`);
+} else {
+    console.error(`❌ [Express] Client dist folder not found at: ${STATIC_DIST_PATH}. Check build step.`);
+}
+
+// 2. SPA (Single Page Application)対応
+const indexPath = path.join(STATIC_DIST_PATH, "index.html");
+if (fs.existsSync(indexPath)) {
+    app.get("/", (_req, res) => {
+        // 🚨 修正: ポート情報の動的挿入ロジックを完全に削除し、純粋にHTMLを返す。
+        // クライアント側で window.location.origin を使って接続させる。
+        res.sendFile(indexPath); 
+    });
+} else {
+    app.get("/", (_req, res) =>
+        res.send("<h1>Client app not configured (index.html missing).</h1>")
+    );
+}
+
+// 3. ゲームロジックの初期化
+try {
+    initGameServer(io, {
+        initialDecks: initialDecks,
+        cardEffects: cardEffects,
+    });
+} catch (err) {
+    console.error("[Server] Failed to initialize game server logic:", err);
+}
+
 
 // --- サーバー起動 ---
-const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
-  console.log(`full-moon-night server running on port ${PORT} (production: ${process.env.NODE_ENV === "production"})`);
+    // 起動が成功したポートをログに出力（デバッグ用）
+    const actualPort = httpServer.address().port;
+    const url = `http://localhost:${actualPort}`;
+    console.log(`🎮 Express/Socket server running at: ${url}`);
+    
+    console.log("Server started, decks loaded:");
+    console.log(" - itemDeck:", itemDeckJson.length, "cards");
+    console.log(" - lightDeck:", lightDeckJson.length, "cards");
+    console.log(" - cardEffects:", Object.keys(cardEffects).length, "effects");
 });
