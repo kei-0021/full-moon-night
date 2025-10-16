@@ -1,11 +1,10 @@
-// src/Game.tsx
 import "react-game-ui/dist/react-game-ui.css";
 
 import React, { useEffect, useState } from "react";
-import type { Card, Player } from "react-game-ui";
+import type { Card, Player, PlayerWithResources } from "react-game-ui";
 import { Deck, Dice, PlayField, ScoreBoard } from "react-game-ui";
 import { io, Socket } from "socket.io-client";
-import { GridBoardCanvas } from "./components/GridBoardCanvas"; // 変更
+import { GridBoardCanvas } from "./components/GridBoardCanvas";
 import { Piece } from "./components/Piece";
 
 import { cardEffects } from "../public/data/cardEffects";
@@ -20,7 +19,7 @@ React;
 interface ServerToClientEvents {
   message: (data: string) => void;
   "game:turn": (playerId: Player["id"]) => void;
-  "players:update": (players: Player[]) => void;
+  "players:update": (players: PlayerWithResources[]) => void; // PlayerWithResources に変更
   "player:assign-id": (id: Player["id"]) => void;
 }
 
@@ -29,7 +28,6 @@ interface ClientToServerEvents {
   "deck:add": (deck: { deckId: string; name: string; cards: typeof lightDeck }) => void;
 }
 
-// --- ソケット接続 ---
 const socketUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(socketUrl);
 
@@ -38,13 +36,11 @@ socket.on("disconnect", (reason) => console.log("サーバーとの接続が切�
 
 export default function Game() {
   const [myPlayerId, setMyPlayerId] = useState<Player["id"]>("");
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [players, setPlayers] = useState<PlayerWithResources[]>([]); // PlayerWithResources に変更
   const [currentPlayerId, setCurrentPlayerId] = useState<Player["id"]>("");
 
-  // 🔹 ここを追加：盤面のタブ状態
   const [activeBoard, setActiveBoard] = useState<"forest" | "moon" | "lake">("forest");
 
-  // Grid盤面: 5x5など適当なサイズで初期化
   const [pieces, setPieces] = useState<Piece[]>([
     new Piece("human1", "h1", 0, 0, "blue"),
     new Piece("human2", "h2", 0, 4, "blue"),
@@ -60,12 +56,14 @@ export default function Game() {
     }));
   };
 
+  // --- useEffect: ソケット接続 ---
   useEffect(() => {
-    socket.on("player:assign-id", (id: Player["id"]) => setMyPlayerId(id));
+    socket.on("player:assign-id", (id) => setMyPlayerId(id));
 
-    const handlePlayersUpdate = (updatedPlayers: Player[]) => setPlayers(updatedPlayers);
+    const handlePlayersUpdate = (updatedPlayers: PlayerWithResources[]) => setPlayers(updatedPlayers);
     const handleGameTurn = (playerId: Player["id"]) => setCurrentPlayerId(playerId);
 
+    // カードに onPlay を追加
     const allDecks = [
       { deckId: "light", name: "光カード", cards: lightDeck },
       { deckId: "item", name: "アイテムカード", cards: itemDeck },
@@ -77,10 +75,13 @@ export default function Game() {
         onPlay: () => {
           const effect = cardEffects[c.name];
           if (effect) {
+            // 型安全に params を渡す
             const params = {
-              card: c,
-              currentPlayerId,
+              playerId: currentPlayerId,
               addScore,
+              updateResource: (playerId: string, resourceId: string, amount: number) => {
+                console.log(`リソース更新: ${playerId} ${resourceId} ${amount}`);
+              },
             };
             effect(params);
           }
@@ -113,9 +114,9 @@ export default function Game() {
     <GridBoardCanvas
       pieces={pieces}
       setPieces={setPieces}
-      rows={10}       // 行数
-      cols={10}       // 列数
-      cellSize={80}  // マスサイズ
+      rows={10}
+      cols={10}
+      cellSize={80}
       theme={activeBoard}
     />
   );
@@ -149,14 +150,14 @@ export default function Game() {
       {/* UIエリア */}
       <div style={{ width: "300px", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "10px" }}>
         {players.length > 0 && currentPlayerId && (
-          <> {/* 👈 currentPlayerId が存在するブロック */}
+          <>
             <ScoreBoard socket={socket} players={players} currentPlayerId={currentPlayerId} myPlayerId={myPlayerId} />
             <div style={{ display: "flex", justifyContent: "space-between", margin: "20px 0" }}>
               <Deck socket={socket} deckId="item" name="アイテム" playerId={currentPlayerId} />
               <Deck socket={socket} deckId="light" name="光カード" playerId={currentPlayerId} />
             </div>
-            <PlayField socket={socket} deckId="item"/> 
-            <PlayField socket={socket} deckId="light"/>
+            <PlayField socket={socket} deckId="item" name="アイテム" />
+            <PlayField socket={socket} deckId="light" name="光カード" />
           </>
         )}
         <Dice socket={socket} diceId="0" sides={3} />

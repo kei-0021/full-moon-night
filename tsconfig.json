@@ -26,6 +26,6 @@
     "noUncheckedSideEffectImports": true
   },
   
-  "include": ["src", "public/data/cardEffects.js"],
-  "exclude": ["node_modules", "dist", "public/data/cardEffects.js"]
+  "include": ["src", "public/data/cardEffects.ts"],
+  "exclude": ["node_modules", "dist", "public/data/cardEffects.ts"]
 }
