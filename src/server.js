@@ -94,7 +94,11 @@ async function startServer() {
     port:4000,
     clientDistPath: path.resolve(__dirname, '..', 'dist'), 
     libDistPath:path.resolve("../dist"),
-    corsOrigins:["http://localhost:5173","http://localhost:4000"],
+    corsOrigins: [
+      "http://localhost:5173",
+      "http://localhost:4000",
+      "https://full-moon-night.onrender.com" // ← これを追加！
+    ],
     onServerStart: (url) => {
       console.log(`🎮 Demo server running at: ${url}`);
     },

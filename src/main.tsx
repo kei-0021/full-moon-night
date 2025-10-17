@@ -1,12 +1,20 @@
-import * as React from 'react';
-import { createRoot } from 'react-dom/client';
-import Game from './GameDeepSea.js';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import GameRoom from "./rooms/GameDeepSea.js";
+import LobbyRoom from "./rooms/LobbyRoom.js";
 
-const rootEl = document.getElementById('root');
-if (rootEl) {
-  createRoot(rootEl).render(
-    <React.StrictMode>
-      <Game/>
-    </React.StrictMode>
-  );
-}
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <Routes>
+        {/* ルートパス (/) をロビーに設定 */}
+        <Route path="/" element={<LobbyRoom />} /> 
+        
+        {/* /room/:roomId にアクセスした時だけゲームルーム（Socket接続を含む）を表示 */}
+        <Route path="/room/:roomId" element={<GameRoom />} /> 
+        
+      </Routes>
+    </BrowserRouter>
+  </React.StrictMode>
+);

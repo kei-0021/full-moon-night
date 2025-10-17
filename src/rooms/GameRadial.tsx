@@ -5,10 +5,10 @@ import React, { useEffect, useState } from "react";
 import type { Card, Player } from "react-game-ui";
 import { Deck, Dice, ScoreBoard } from "react-game-ui";
 import { io, Socket } from "socket.io-client";
-import { Piece } from "./components/Piece";
-import { RadialBoardCanvas } from "./components/RadialBoardCanvas";
+import { Piece } from "../components/Piece";
+import { RadialBoardCanvas } from "../components/RadialBoardCanvas";
 
-import { cardEffects } from "../public/data/cardEffects";
+import { cardEffects } from "../../public/data/cardEffects";
 import itemDeckJson from "../public/data/itemCards.json";
 import lightDeckJson from "../public/data/lightCards.json";
 
