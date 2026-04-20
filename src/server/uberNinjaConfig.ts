@@ -110,6 +110,9 @@ export const uberNinjaConfig: RoomConfig = {
         ],
       },
 
+      dice: {
+        "environment": { id: "environment", sides: 4, currentValue: 1 }, "action-move": { id: "action-move", sides: 3, currentValue: 1 },
+      },
       components: [],
     };
   },

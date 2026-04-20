@@ -227,18 +227,12 @@ export function UberNinjaRoom() {
           <div className={styles.diceSection}>
             <div className={styles.diceWrapper}>
               <p className={styles.diceLabel}>3面ダイス</p>
-              <Dice
-                sides={3}
-                socket={socket}
-                diceId="action-move"
-                roomId={roomId}
-              />
+              <Dice socket={socket} diceId="action-move" roomId={roomId} />
             </div>
 
             <div className={styles.diceWrapper}>
               <p className={styles.diceLabel}>刻限ダイス</p>
               <Dice
-                sides={4}
                 socket={socket}
                 diceId="environment"
                 roomId={roomId}

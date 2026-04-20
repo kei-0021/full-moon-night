@@ -102,6 +102,7 @@ export const fireworksConfig: RoomConfig = {
       initialBoard: { fireworksBoard: fireworksBoard },
       shuffleAndReconnectBoard: { fireworksBoard: cellShuffleAndReconnector },
       draggables: draggables,
+      dice: { "3面ダイス": { id: "3面ダイス", sides: 3, currentValue: 1 } },
       checkGameEnd: (state: RoomState) =>
         // 終了条件: 10ラウンド終了 (10ラウンド目の最後 かつ 最後のプレイヤーの手番時)
         state.currentRoundIndex >= 9 &&

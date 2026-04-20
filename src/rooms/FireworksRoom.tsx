@@ -297,12 +297,10 @@ export default function FireworksRoom() {
             <div className={styles.diceSection}>
               <div className={styles.diceWrapper}>
                 <Dice
-                  sides={3}
                   socket={socket}
                   diceId="move"
                   roomId={roomId}
                   title="3面ダイス"
-                  onRoll={setCurrentDiceValue}
                 />
               </div>
             </div>
@@ -341,7 +339,7 @@ export default function FireworksRoom() {
               boardId={"fireworksBoard"}
               players={players}
               myPlayerId={myPlayerId}
-              allowPieceDrag={true}
+              allowTokenDrag={true}
               renderCell={(cellData) => (
                 <CommonCellRenderer cellData={cellData} />
               )}
