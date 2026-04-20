@@ -1,0 +1,50 @@
+{
+  "ninja": [
+    {
+      "id": "ninja",
+      "tokenStoreId": "ninja",
+      "name": "ninja",
+      "ownerId": "player",
+      "color": "#ff4444",
+      "position": { "row": 0, "col": 3 },
+      "movableCells": [],
+      "image": "/images/uberninja/ninja.svg"
+    }
+  ],
+  "scooter": [
+    {
+      "id": "scooter",
+      "tokenStoreId": "scooter",
+      "name": "scooter",
+      "ownerId": "player",
+      "color": "#ff4444",
+      "position": { "row": 0, "col": 4 },
+      "movableCells": [],
+      "image": "/images/uberninja/scooter.svg"
+    }
+  ],
+  "ninja-potato": [
+    {
+      "id": "ninja-potato",
+      "tokenStoreId": "ninja-potato",
+      "name": "ninja-potato",
+      "ownerId": null,
+      "color": "white",
+      "position": { "row": 4, "col": 0 },
+      "movableCells": [],
+      "image": "/images/uberninja/ninja-potato.png"
+    }
+  ],
+  "ninja-chicken": [
+    {
+      "id": "ninja-chicken",
+      "tokenStoreId": "ninja-chicken",
+      "name": "ninja-chicken",
+      "ownerId": null,
+      "color": "white",
+      "position": { "row": 3, "col": 7 },
+      "movableCells": [],
+      "image": "/images/uberninja/ninja-chicken.png"
+    }
+  ]
+}

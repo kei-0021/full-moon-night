@@ -12,6 +12,7 @@ export const uberNinjaConfig: RoomConfig = {
   dataFiles: {
     orderCards: "../public/data/uberninja/uberNinjaOrderCards.json",
     deliverBoard: "../public/data/uberninja/uberNinjaCells.json",
+    tokensOnBoard: "../public/data/uberninja/uberNinjaTokensOnBoard.json"
   },
   setup: async (loadedData: Record<string, any>): Promise<GameParam> => {
     const helper = new SetupHelper();
@@ -23,6 +24,8 @@ export const uberNinjaConfig: RoomConfig = {
       8,
       8,
     );
+
+    const tokensOnBoard = loadedData.tokensOnBoard
 
     return {
       gameId: "uberninja",
@@ -57,59 +60,7 @@ export const uberNinjaConfig: RoomConfig = {
         },
       ],
       initialTokens: { makibishi: 5 },
-      initialTokensOnBoard: {
-        // プレイヤー入室時に複製される忍者本体テンプレート
-        ninja: [
-          {
-            id: "ninja",
-            tokenStoreId: "ninja",
-            name: "ninja",
-            ownerId: "player",
-            color: "#ff4444",
-            position: { row: 0, col: 3 },
-            movableCells: [],
-            image: "/images/uberninja/ninja.svg",
-          },
-        ],
-        // プレイヤー入室時に複製されるスクーターテンプレート
-        scooter: [
-          {
-            id: "scooter",
-            tokenStoreId: "scooter",
-            name: "scooter",
-            ownerId: "player",
-            color: "#ff4444",
-            position: { row: 0, col: 4 },
-            movableCells: [],
-            image: "/images/uberninja/scooter.svg",
-          },
-        ],
-        "ninja-potato": [
-          {
-            id: "ninja-potato",
-            tokenStoreId: "ninja-potato",
-            name: "ninja-potato",
-            ownerId: null,
-            color: "white",
-            position: { row: 4, col: 0 },
-            movableCells: [],
-            image: "/images/uberninja/ninja-potato.png",
-          },
-        ],
-        "ninja-chicken": [
-          {
-            id: "ninja-chicken",
-            tokenStoreId: "ninja-chicken",
-            name: "ninja-chicken",
-            ownerId: null,
-            color: "white",
-            position: { row: 3, col: 7 },
-            movableCells: [],
-            image: "/images/uberninja/ninja-chicken.png",
-          },
-        ],
-      },
-
+      initialTokensOnBoard: tokensOnBoard,
       dice: {
         "environment": { id: "environment", sides: 4, currentValue: 1 }, "action-move": { id: "action-move", sides: 3, currentValue: 1 },
       },
