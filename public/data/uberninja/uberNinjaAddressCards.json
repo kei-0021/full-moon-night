@@ -1,0 +1,50 @@
+[
+  {
+    "id": "card-B-01",
+    "name": "東1",
+    "location": "deck",
+    "drawCondition": ["hand", "face"],
+    "playLocation": "field",
+    "fieldBackConditon": "discard"
+  },
+  {
+    "id": "card-B-02",
+    "name": "東2",
+    "location": "deck",
+    "drawCondition": ["hand", "face"],
+    "playLocation": "field",
+    "fieldBackConditon": "discard"
+  },
+  {
+    "id": "card-C-01",
+    "name": "南1",
+    "location": "deck",
+    "drawCondition": ["hand", "face"],
+    "playLocation": "field",
+    "fieldBackConditon": "discard"
+  },
+  {
+    "id": "card-A-03",
+    "name": "南2",
+    "location": "deck",
+    "drawCondition": ["hand", "face"],
+    "playLocation": "field",
+    "fieldBackConditon": "discard"
+  },
+  {
+    "id": "card-A-04",
+    "name": "西1",
+    "location": "deck",
+    "drawCondition": ["hand", "face"],
+    "playLocation": "field",
+    "fieldBackConditon": "discard"
+  },
+  {
+    "id": "card-B-03",
+    "name": "西2",
+    "location": "deck",
+    "drawCondition": ["hand", "face"],
+    "playLocation": "field",
+    "fieldBackConditon": "discard"
+  }
+]

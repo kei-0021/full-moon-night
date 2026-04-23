@@ -4,19 +4,22 @@ import type { GameParam } from "react-game-ui";
 import { SetupHelper, type RoomConfig } from "react-game-ui/server-io-utils";
 
 export const CELL_COUNTS = {
-  SIMPLE: 64,
+  SIMPLE: 63,
+  HOUSE: 1,
 };
 
 export const uberNinjaConfig: RoomConfig = {
   gameId: "uberninja",
   dataFiles: {
     orderCards: "../public/data/uberninja/uberNinjaOrderCards.json",
+    addressCards: "../public/data/uberninja/uberNinjaAddressCards.json",
     deliverBoard: "../public/data/uberninja/uberNinjaCells.json",
     tokensOnBoard: "../public/data/uberninja/uberNinjaTokensOnBoard.json"
   },
   setup: async (loadedData: Record<string, any>): Promise<GameParam> => {
     const helper = new SetupHelper();
     const uberNinjaOrderCards = helper.assertCards(loadedData.orderCards);
+    const uberNinjaAddressCards = helper.assertCards(loadedData.addressCards)
 
     const deliverBoard = helper.createGridBoardLayout(
       loadedData.deliverBoard,
@@ -33,9 +36,15 @@ export const uberNinjaConfig: RoomConfig = {
       initialDecks: [
         {
           deckId: "order",
-          name: "注文カード",
+          name: "商品カード",
           cards: uberNinjaOrderCards,
           backColor: "rgb(11, 108, 26)",
+        },
+        {
+          deckId: "address",
+          name: "配達先カード",
+          cards: uberNinjaAddressCards,
+          backColor: "rgb(212, 175, 55)",
         },
       ],
       initialBoard: { deliver: deliverBoard },

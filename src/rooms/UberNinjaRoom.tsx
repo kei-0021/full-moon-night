@@ -6,14 +6,7 @@ import type {
   PlayerId,
   RoomJoinData,
 } from "react-game-ui";
-import {
-  Deck,
-  Dice,
-  GridBoard,
-  RemoteCursor,
-  ScoreBoard,
-  TokenStore,
-} from "react-game-ui";
+import { Deck, Dice, GridBoard, RemoteCursor, ScoreBoard } from "react-game-ui";
 import "react-game-ui/dist/react-game-ui.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { CommonCellRenderer } from "../components/CommonCellRenderer.js";
@@ -219,7 +212,16 @@ export function UberNinjaRoom() {
             socket={socket!}
             roomId={roomId}
             deckId="order"
-            title="[ 注文カード ]"
+            title="[ 商品カード ]"
+            currentPlayerId={currentPlayerId}
+            myPlayerId={myPlayerId}
+            alwaysDraw={true}
+          />
+          <Deck
+            socket={socket!}
+            roomId={roomId}
+            deckId="address"
+            title="[ 配達先カード ]"
             currentPlayerId={currentPlayerId}
             myPlayerId={myPlayerId}
             alwaysDraw={true}
@@ -252,14 +254,6 @@ export function UberNinjaRoom() {
                 ]}
               />
             </div>
-          </div>
-          <div className={styles.tokenPos}>
-            <TokenStore
-              socket={socket!}
-              roomId={roomId}
-              tokenStoreId="KUNAI_COUNT"
-              title="コマ置場"
-            />
           </div>
         </aside>
 

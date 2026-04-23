@@ -7,5 +7,14 @@
     "content": "",
     "changedContent": "",
     "changedColor": "#4b0082"
+  },
+  {
+    "templateId": "HOUSE",
+    "name": "HOUSE",
+    "shapeType": "square",
+    "backgroundColor": "#87A96B",
+    "content": "南1",
+    "changedContent": "",
+    "changedColor": "#4b0082"
   }
 ]
