@@ -17,6 +17,7 @@ export const uberNinjaConfig: RoomConfig = {
     tokensOnBoard: "../public/data/uberninja/uberNinjaTokensOnBoard.json"
   },
   setup: async (loadedData: Record<string, any>): Promise<GameParam> => {
+    const { uberNinjaData } = await import(`./uberNinjaData.js?t=${Date.now()}`);
     const helper = new SetupHelper();
     const uberNinjaOrderCards = helper.assertCards(loadedData.orderCards);
     const uberNinjaAddressCards = helper.assertCards(loadedData.addressCards)
@@ -74,6 +75,7 @@ export const uberNinjaConfig: RoomConfig = {
         "environment": { id: "environment", sides: 4, currentValue: 1 }, "action-move": { id: "action-move", sides: 3, currentValue: 1 },
       },
       components: [],
+      ...uberNinjaData,
     };
   },
 };

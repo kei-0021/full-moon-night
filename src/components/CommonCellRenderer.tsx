@@ -31,7 +31,7 @@ export const CommonCellRenderer = ({ cellData }: { cellData: CellData }) => {
           }}
         />
       ) : (
-        <span style={{ fontSize: "12px", color: "#ccc" }}>{content}</span>
+        <span style={{ fontSize: "15px", color: "#000000" }}>{content}</span>
       )}
     </div>
   );
